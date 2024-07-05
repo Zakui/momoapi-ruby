@@ -60,6 +60,25 @@ module Momoapi
       { transaction_reference: uuid }
     end
 
+    # This method is used to send notification to a consumer (Payer). when
+    # the transaction is authorized or declined by the payer or it is timed out by the system
+    def request_to_pay_delivry_notification(transaction_id, message)
+      
+      headers = {
+        "X-Target-Environment": Momoapi.config.environment || 'sandbox',
+        "Content-Type": 'application/json',
+        "notificationMessage": message,
+        "Ocp-Apim-Subscription-Key": Momoapi.config.collection_primary_key
+      }
+            
+      body = {
+        "notificationMessage": message
+      }
+      
+      path = "/collection/v1_0/requesttopay/#{transaction_id}/deliverynotification"
+      send_request('post', path, headers, body)
+    end
+
     def is_user_active(phone_number)
       path = "/collection/v1_0/accountholder/msisdn/#{phone_number}/active"
       super(path, Momoapi.config.collection_primary_key)
